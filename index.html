@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>reveal.js</title>
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter"
+    />
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" id="theme" />
+
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
+
+    <style>
+      input#switch {
+        height: 0;
+        width: 0;
+        visibility: hidden;
+      }
+
+      #switchlabel {
+        cursor: pointer;
+        text-indent: -9999px;
+        width: 200px;
+        height: 100px;
+        background: grey;
+        display: block;
+        border-radius: 100px;
+        position: relative;
+      }
+
+      label#switchlabel:after {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 90px;
+        height: 90px;
+        background: #fff;
+        border-radius: 90px;
+        transition: 0.3s;
+      }
+
+      input#switch:checked + label {
+        background: #bada55;
+      }
+
+      input#switch:checked + label:after {
+        left: calc(100% - 5px);
+        transform: translateX(-100%);
+      }
+
+      label#switchlabel:active:after {
+        width: 130px;
+      }
+
+	  .button-wrapper {
+		display: block;
+		text-align: center;
+	  }
+	  .button.cta-button {
+		border: none;
+		border-radius: 3em;
+		box-shadow: 2px 2px 2px rgba(0,0,0,0.2);
+		display: inline-block;
+		font-size: 1em;
+		font-weight: bolder;
+		padding: 1em 2em;
+		width: auto;
+	  }
+	  .cta-button {
+		background-color: #405BFF;
+		color: #fff !important;
+	  }
+
+	  .cta-button:hover {
+		background-color: #777;
+	  }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h2>
+            Feature Flagging is Just Simple Booleans:
+            <span id="slide1-title"></span>
+          </h2>
+          <h4>Brian Rinaldi</h4>
+          <h4><a href="https://twitter.com/remotesynth">@remotesynth</a></h4>
+        </section>
+        <section data-background-image="/images/background.jpg">
+          <h3>What we'll cover</h3>
+          <ul>
+            <li>What the heck are feature flags?</li>
+            <li>Why are feature flags useful?</li>
+            <li>Implementing a standard feature flag</li>
+            <li>Advanced flag types and flag usages</li>
+          </ul>
+        </section>
+        <section data-markdown data-background-image="/images/background.jpg">
+          <textarea data-template>
+### Who am I?
+* Developer Experience Engineer at [LaunchDarkly](https://launchdarkly.com)
+* Co-author of [The Jamstack Book from Manning](https://www.manning.com/books/the-jamstack-book)
+* Editor of the [Jamstacked newsletter from Cooper Press](https://jamstack.email/)
+* Run the [CFE.dev community](https://cfe.dev) and Orlando Devs
+			</textarea
+          >
+        </section>
+        <section data-background-image="/images/background2.jpg">
+          <h3>What the heck are feature flags?</h3>
+          <p>
+            A feature flag (often called a toggle) is a condition/variable that
+            enables or disables a portion of code (ex. a feature in
+            development). Code within the block will only run if the condition
+            is true.
+          </p>
+        </section>
+        <section>
+          <h3>Basic Toggle</h3>
+          <div id="slide5codeToggle">
+            <pre><code data-trim data-noescape>
+			if (myFlag) {
+				// run this code and show my awesome feature
+				document.write("&lt;p&gt;My Awesome In-development Feature!!&lt;/p&gt;")
+			}
+			  </code></pre>
+          </div>
+          <div
+            style="display: flex; justify-content: center; align-items: center"
+          >
+            <input
+              type="checkbox"
+              id="switch"
+              onclick="slide5toggleCode()"
+            /><label id="switchlabel" for="switch">Toggle</label>
+          </div>
+        </section>
+		<section>
+			<h1>What's the big deal?</h1>
+			<p class="r-fit-text">It's just a simple conditional.</p>
+		</section>
+		<section data-background-image="/images/background4.jpg">
+			<h3>What's the big deal?</h3>
+			<ul>
+				<li>Code can be turned on in one environment and not others.</li>
+				<li>Seperates "deploy" from "release" – code can be deployed but not running.</li>
+				<li>Easily kill a feature that is malfunctioning (kill switch)</li>
+			</ul>
+		</section>
+		<section data-background-image="/images/background4.jpg">
+			<h3>Concept: Trunk Based Development</h3>
+			<ul>
+				<li>Eliminate long running branches</li>
+				<li>Push changes directly to <code>main</code> or merge frequently</li>
+				<li>CI/CD
+					<ul>
+						<li>Always be deploying</li>
+						<li>Test merges before they are approved/deployed</li>
+					</ul>
+				</li>
+			</ul>
+		</section>
+        <section data-background-image="/images/background2.jpg">
+          <h3>Basic Toggle Implementation</h3>
+
+          <p>Most folks start with a variable...</p>
+
+          <pre><code data-trim data-noescape>
+const myFlag = true;
+
+if (myFlag) {
+	// run this code
+}
+</code></pre>
+
+          <p class="fragment">...but this isn't sustainable.</p>
+        </section>
+        <section data-background-image="/images/background2.jpg">
+          <h3>Basic Toggle Implementation</h3>
+
+          <p>Or they may do a command-line flag...</p>
+
+          <pre><code data-trim data-noescape>
+node index.js --myFlag=true
+</code></pre>
+
+          <p class="fragment">
+            ...but this works best for a very limited set of flags.
+          </p>
+        </section>
+        <section data-background-image="/images/background2.jpg">
+<h3>Basic Toggle Implementation</h3>
+  
+<p>So they move to a config...</p>
+  
+<pre><code data-trim data-noescape>
+flags:
+	- myFlag: true
+	- myOtherFlag: false
+</code></pre>
+
+<p class="fragment">...but this still requires a redeploy for changes outside of local dev.</p>
+			  </textarea
+          >
+        </section>
+		<section>
+			<h3>Boolean flags are 💪</h3>
+
+			<p>Just because they are simple, doesn't mean they aren't powerful:</p>
+
+			<ul class="r-fit-text">
+				<li><strong>Release toggles</strong><br><em>Unfinished or untested code that is in the production codebase but not running</em></li>
+				<li><strong>Ops toggles</strong><br><em>Switch operational aspects of the application that may need to be tested (ex swapping a new service)</em></li>
+				<li><strong>Kill switches</strong><br><em>An ops or release toggle but specifically that can kill a service or feature that is problematic (no rollback required)</em></li>
+			</ul>
+		</section>
+		<section data-background-image="/images/background3.jpg">
+			<h3>Options for Flags</h3>
+			<ul>
+				<li>Homegrown</li>
+				<li>LaunchDarkly</li>
+				<li>...lots of other services.</li>
+			</ul>
+		</section>
+		<section data-background-image="/images/background.jpg">
+			<blockquote>Warning: The demos here will all be LaunchDarkly (for obvious reasons) but the principles generally apply across systems.</blockquote>
+		</section>
+		<section>
+			<h3>Advanced Feature Flags 201: Beyond the Boolean</h3>
+			<p>Other types of <em>multivariate</em> feature flags:</p>
+			<ul>
+				<li>String</li>
+				<li>Number</li>
+				<li>JSON</li>
+			</ul>
+		</section>
+		<section>
+			<h3>String flags</h3>
+			<p>Good for simple configurations or content.</p>
+			<img src="" id="memeImage" height="400">
+		</section>
+		<section>
+			<h3>JSON flags</h3>
+			<p>Good for complex configurations or content.</p>
+			<img src="" id="batmanImage" width="250" height=""250" style="float:left;margin-right:30px;padding-left:180px;">
+			<div style="text-align: left; font-size:.6em;margin:40px;">
+				<p>Name: <span id="batmanName"></span><br>Occupation: <span id="batmanOccupation"></span></p>
+			</div>
+		</section>
+		<section data-background-image="/images/background.jpg">
+			<blockquote>Just on/off is cool, but what if it didn't have to be on or off for everyone?</blockquote>
+		</section>
+		<section data-background-image="/images/background4.jpg">
+			<h3>Advanced Feature Flags 301: Targeting</h3>
+		</section>
+		<section>
+			<h3>Canary releases /<br>progressive rollouts</h3>
+			<h4>Deep Thoughts by Jack Handy</h4>
+			<p id="deepThoughts15">Quote here</p>
+			<button onclick="changeUser()">Change User</button>
+		</section>
+		<section>
+			<h3>User/Segment Targeting</h3>
+			<h4>Deep Thoughts by Jack Handy</h4>
+			<p id="deepThoughts16">Quote here</p>
+			<input id="slide16username" type="text" name="slide16username"><button onclick="changeUser(document.getElementById('slide16username').value)">Log in</button>
+		</section>
+		<section data-background-image="/images/background.jpg">
+			<h3>Experimentation</h3>
+			<div class="button-wrapper">
+				<a id="CTAButton" class="button cta-button" href="https://theuselessweb.com/" target="_blank">Do thing!</a>
+			</div>
+			<button onclick="changeUser()">Change User</button>
+		</section>
+    <section>
+      <h3>Aside: How long should a flag live?</h3>
+      <ul>
+        <li style="font-size:.7em;"><strong>Short-lived flags</strong><br><span style="font-size:.7em;">Exist while feature is being worked on and removed once the feature is released.</span></li>
+        <li style="font-size:.7em;"><strong>Long-lived flags</strong><br><span style="font-size:.7em;">These tend to be features that on in ongoing testing beyond initial release (ex A/B tests).</span></li>
+        <li style="font-size:.7em;"><strong>Permanent flags</strong><br><span style="font-size:.7em;">These can be flags that handle permissions (ex. beta access) or intentionally long lived ops toggles</span></li>
+      </ul>
+    </section>
+    <section data-background-image="/images/background3.jpg">
+			<h3>Advanced Feature Flags 401: The Edge</h3>
+      <ul>
+        <li>Flag injection</li>
+        <li>Edge redirects</li>
+        <li>A/B testing</li>
+      </ul>
+		</section>
+    <section data-background-image="/images/background3.jpg">
+      <h3>Advanced Feature Flags 401: The Edge</h3>
+      <p>Flag injection:</p>
+<pre><code data-trim data-noescape>class FlagsStateInjector {
+  async element(element) {
+    // fetch all client-side flag values for an anonymous user
+    const user = { key: "anonymous" };
+    const allFlags = await ldClient.allFlagsState(user, {
+      clientSideOnly: true,
+    });
+    element.append(
+      `&lt;script&gt;window.ldFlags = ${JSON.stringify(allFlags)}&lt;/script&gt;`,
+      { html: true }
+    );
+  }
+}</code></pre>
+    </section>
+    <section data-background-image="/images/background3.jpg">
+      <h3>Advanced Feature Flags 401: The Edge</h3>
+      <p>A/B Testing:</p>
+<pre><code data-trim data-noescape>class H1ElementHandler {
+  async element(element) {
+    // replace the header text with the value of a string flag
+    const headerText = await getFlagValue("header-text");
+    element.setInnerContent(headerText);
+  }
+}
+const rewriter = new HTMLRewriter();
+rewriter.on("h1", new H1ElementHandler());</code></pre>
+    </section>
+    <section data-background-image="/images/background3.jpg">
+      <h4>Questions?</h4>
+      <p>Twitter: <a href="https://twitter.com/remotesynth">@remotesynth</a></p>
+      <p>Email: <a href="mailto:brinaldi@launchdarkly.com">brinaldi@launchdarkly.com</a></p>
+    </section>
+      </div>
+    </div>
+
+    <script crossorigin="anonymous" src="scripts/ldclient.min.js"></script>
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+      });
+
+      function setStringFlagToInnerHTML(flagName, flagValue) {
+        const el = document.getElementById(flagName);
+        el.innerText = flagValue;
+      }
+
+      function changeTheme(stylesheet) {
+        document
+          .getElementById("theme")
+          .setAttribute("href", "dist/theme/" + stylesheet + ".css");
+      }
+
+      function toggleBackgroundImage(slide, image, toggle) {
+        const els = document.querySelectorAll(".slide-background");
+        const el = els[slide - 1].firstChild;
+        if (toggle) el.style.backgroundImage = "url(" + image + ")";
+        else el.style.backgroundImage = "";
+      }
+
+      function slide5toggleCode() {
+        const el = document.getElementById("slide5codeToggle");
+        if (document.getElementById("switch").checked)
+          el.innerHTML = "<p>My Awesome In-development Feature!!</p>";
+        else
+          el.innerHTML = `<pre class="code-wrapper"><code data-trim="" data-noescape="" class="hljs less"><span class="hljs-selector-tag">if</span> (myFlag) {
+	<span class="hljs-comment">// run this code and show my awesome feature</span>
+	<span class="hljs-selector-tag">document</span><span class="hljs-selector-class">.write</span>(<span class="hljs-string">"&lt;p&gt;My Awesome In-development Feature!!&lt;/p&gt;"</span>)
+}</code></pre>`;
+      }
+
+	  async function changeUser(id) {
+		const newUser = id || self.crypto.randomUUID();
+		await client.identify({ key: newUser })
+		console.log(newUser)
+	  }
+
+	  function changeJackHandyQuote(quote, id) {
+		const el = document.getElementById(id);
+		el.innerText = quote;
+	  }
+
+	  function changeImage(image, id) {
+		const el = document.getElementById(id);
+		el.src = '/images/' + image;
+	  }
+
+	  function changeData(data) {
+		if (data.image && data.occupation && data.name) {
+			const elName = document.getElementById("batmanName");
+			const elOccupation = document.getElementById("batmanOccupation");
+			changeImage(data.image, "batmanImage")
+			elName.innerText = data.name;
+			elOccupation.innerText = data.occupation
+		}
+	  }
+
+	  function changeButtonText(text, id) {
+		const el = document.getElementById(id);
+		el.innerText = text;
+	  }
+
+      user = {
+        key: self.crypto.randomUUID(),
+      };
+      const client = LDClient.initialize("62d707f7ec8ffa10f6e7dafc", user);
+      client.on("ready", function () {
+        // SLIDE 1
+
+        // TITLE CHANGE
+        const slide1Title = client.variation("slide1-title", "🤷");
+        setStringFlagToInnerHTML("slide1-title", slide1Title);
+        client.on("change:slide1-title", function (flagValue) {
+          setStringFlagToInnerHTML("slide1-title", flagValue);
+        });
+
+        //CSS CHANGE
+        const slide1CSS = client.variation("slide1-stylesheet", "white");
+        changeTheme(slide1CSS);
+        client.on("change:slide1-stylesheet", function (flagValue) {
+          changeTheme(flagValue);
+        });
+
+        //BACKGROUND IMAGE CHANGE
+        const slide1background = client.variation(
+          "slide1-background-image",
+          "false"
+        );
+        toggleBackgroundImage(
+          1,
+          "/images/title_background.jpg",
+          slide1background
+        );
+        client.on("change:slide1-background-image", function (flagValue) {
+          toggleBackgroundImage(1, "/images/title_background.jpg", flagValue);
+        });
+
+		// STRING FLAG IMAGE CHANGE
+		const slide14image = client.variation("slide14-image", "");
+    changeImage(slide14image, "memeImage");
+    client.on("change:slide14-image", function (flagValue) {
+			changeImage(flagValue, "memeImage");
+    });
+
+		// JSON FLAG DATA CHANGE
+		const slide15json = client.variation("slide15-json", "{}");
+    changeData(slide15json);
+    client.on("change:slide15-json", function (flagValue) {
+		  changeData(flagValue);
+    });
+
+		// DEEP THOUGHTS SLIDE 15 QUOTE CHANGE
+		const slide15quote = client.variation("slide15-quote", "Jack handy quote");
+    changeJackHandyQuote(slide15quote, "deepThoughts15");
+    client.on("change:slide15-quote", function (flagValue) {
+		  changeJackHandyQuote(flagValue, "deepThoughts15");
+    });
+
+		// DEEP THOUGHTS SLIDE 16 QUOTE CHANGE
+		const slide16quote = client.variation("slide16-quote", "Jack handy quote");
+    changeJackHandyQuote(slide16quote, "deepThoughts16");
+    client.on("change:slide16-quote", function (flagValue) {
+			changeJackHandyQuote(flagValue, "deepThoughts16");
+    });
+
+		// EXPERIMENTATION BUTTON CHANGE
+		const slide21button = client.variation("slide21-experiment", "Do thing");
+    changeButtonText(slide21button, "CTAButton");
+    client.on("change:slide21-experiment", function (flagValue) {
+			changeButtonText(flagValue, "CTAButton");
+    });
+  });
+    </script>
+  </body>
+</html>
