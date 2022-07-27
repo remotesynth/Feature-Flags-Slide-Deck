@@ -7,7 +7,7 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
 
-    <title>reveal.js</title>
+    <title>Feature Flags</title>
 
     <link
       rel="stylesheet"
@@ -279,12 +279,16 @@ flags:
 		<section data-background-image="/images/background.jpg">
 			<h3>Experimentation</h3>
 			<div class="button-wrapper">
-				<a id="CTAButton" class="button cta-button" href="https://theuselessweb.com/" target="_blank">Do thing!</a>
+				<a id="CTAButton" class="button cta-button" href="http://localhost:8000/#/21" onclick="console.log('Flushing');client.flush();">Do thing!</a>
 			</div>
 			<button onclick="changeUser()">Change User</button>
 		</section>
     <section>
-      <h3>Aside: How long should a flag live?</h3>
+      <h3>Aside:</h3><h2>Beware flag debt!</h2>
+    </section>
+    <section>
+      <h3>Aside: Beware flag debt</h3>
+      <p>How long should a flag live?</p>
       <ul>
         <li style="font-size:.7em;"><strong>Short-lived flags</strong><br><span style="font-size:.7em;">Exist while feature is being worked on and removed once the feature is released.</span></li>
         <li style="font-size:.7em;"><strong>Long-lived flags</strong><br><span style="font-size:.7em;">These tend to be features that on in ongoing testing beyond initial release (ex A/B tests).</span></li>
@@ -382,36 +386,36 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
 }</code></pre>`;
       }
 
-	  async function changeUser(id) {
-		const newUser = id || self.crypto.randomUUID();
-		await client.identify({ key: newUser })
-		console.log(newUser)
-	  }
+      async function changeUser(id) {
+        const newUser = id || self.crypto.randomUUID();
+        await client.identify({ key: newUser })
+        console.log("New user: " + newUser)
+      }
 
-	  function changeJackHandyQuote(quote, id) {
-		const el = document.getElementById(id);
-		el.innerText = quote;
-	  }
+	    function changeJackHandyQuote(quote, id) {
+		    const el = document.getElementById(id);
+		    el.innerText = quote;
+	    }
 
-	  function changeImage(image, id) {
-		const el = document.getElementById(id);
-		el.src = '/images/' + image;
-	  }
+      function changeImage(image, id) {
+        const el = document.getElementById(id);
+        el.src = '/images/' + image;
+      }
 
-	  function changeData(data) {
-		if (data.image && data.occupation && data.name) {
-			const elName = document.getElementById("batmanName");
-			const elOccupation = document.getElementById("batmanOccupation");
-			changeImage(data.image, "batmanImage")
-			elName.innerText = data.name;
-			elOccupation.innerText = data.occupation
-		}
-	  }
+      function changeData(data) {
+        if (data.image && data.occupation && data.name) {
+          const elName = document.getElementById("batmanName");
+          const elOccupation = document.getElementById("batmanOccupation");
+          changeImage(data.image, "batmanImage")
+          elName.innerText = data.name;
+          elOccupation.innerText = data.occupation
+        }
+      }
 
-	  function changeButtonText(text, id) {
-		const el = document.getElementById(id);
-		el.innerText = text;
-	  }
+      function changeButtonText(text, id) {
+        const el = document.getElementById(id);
+        el.innerText = text;
+      }
 
       user = {
         key: self.crypto.randomUUID(),
@@ -448,41 +452,41 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
           toggleBackgroundImage(1, "/images/title_background.jpg", flagValue);
         });
 
-		// STRING FLAG IMAGE CHANGE
-		const slide14image = client.variation("slide14-image", "");
-    changeImage(slide14image, "memeImage");
-    client.on("change:slide14-image", function (flagValue) {
-			changeImage(flagValue, "memeImage");
-    });
+        // STRING FLAG IMAGE CHANGE
+        const slide14image = client.variation("slide14-image", "");
+        changeImage(slide14image, "memeImage");
+        client.on("change:slide14-image", function (flagValue) {
+          changeImage(flagValue, "memeImage");
+        });
 
-		// JSON FLAG DATA CHANGE
-		const slide15json = client.variation("slide15-json", "{}");
-    changeData(slide15json);
-    client.on("change:slide15-json", function (flagValue) {
-		  changeData(flagValue);
-    });
+        // JSON FLAG DATA CHANGE
+        const slide15json = client.variation("slide15-json", "{}");
+        changeData(slide15json);
+        client.on("change:slide15-json", function (flagValue) {
+          changeData(flagValue);
+        });
 
-		// DEEP THOUGHTS SLIDE 15 QUOTE CHANGE
-		const slide15quote = client.variation("slide15-quote", "Jack handy quote");
-    changeJackHandyQuote(slide15quote, "deepThoughts15");
-    client.on("change:slide15-quote", function (flagValue) {
-		  changeJackHandyQuote(flagValue, "deepThoughts15");
-    });
+        // DEEP THOUGHTS SLIDE 15 QUOTE CHANGE
+        const slide15quote = client.variation("slide15-quote", "Jack handy quote");
+        changeJackHandyQuote(slide15quote, "deepThoughts15");
+        client.on("change:slide15-quote", function (flagValue) {
+          changeJackHandyQuote(flagValue, "deepThoughts15");
+        });
 
-		// DEEP THOUGHTS SLIDE 16 QUOTE CHANGE
-		const slide16quote = client.variation("slide16-quote", "Jack handy quote");
-    changeJackHandyQuote(slide16quote, "deepThoughts16");
-    client.on("change:slide16-quote", function (flagValue) {
-			changeJackHandyQuote(flagValue, "deepThoughts16");
-    });
+        // DEEP THOUGHTS SLIDE 16 QUOTE CHANGE
+        const slide16quote = client.variation("slide16-quote", "Jack handy quote");
+        changeJackHandyQuote(slide16quote, "deepThoughts16");
+        client.on("change:slide16-quote", function (flagValue) {
+          changeJackHandyQuote(flagValue, "deepThoughts16");
+        });
 
-		// EXPERIMENTATION BUTTON CHANGE
-		const slide21button = client.variation("slide21-experiment", "Do thing");
-    changeButtonText(slide21button, "CTAButton");
-    client.on("change:slide21-experiment", function (flagValue) {
-			changeButtonText(flagValue, "CTAButton");
-    });
-  });
+        // EXPERIMENTATION BUTTON CHANGE
+        const slide21button = client.variation("slide21-experiment", "Do thing");
+        changeButtonText(slide21button, "CTAButton");
+        client.on("change:slide21-experiment", function (flagValue) {
+          changeButtonText(flagValue, "CTAButton");
+        });
+      });
     </script>
   </body>
 </html>
