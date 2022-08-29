@@ -85,6 +85,89 @@
 	  .cta-button:hover {
 		background-color: #777;
 	  }
+
+    @import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+* {
+	box-sizing: border-box;
+}
+
+#bman-container {
+	font-family: Montserrat, sans-serif;
+
+	margin: 0;
+  width: 80%;
+
+}
+
+#bman {
+  margin: 0 auto;
+}
+
+#bman h3 {
+  font-size: .5em;
+}
+
+#bman h6 {
+  font-size: .3em;
+	margin: 5px 0;
+	text-transform: uppercase;
+}
+
+#bman p {
+	font-size: 14px;
+	line-height: 21px;
+  margin: 5px 0;
+}
+
+.card-container {
+	background-color: #231E39;
+	border-radius: 5px;
+	box-shadow: 0px 10px 20px -10px rgba(0,0,0,0.75);
+	color: #B3B8CD;
+	padding-top: 30px;
+	position: relative;
+	width: 350px;
+	max-width: 100%;
+	text-align: center;
+}
+
+.card-container .pro {
+	color: #231E39;
+	background-color: #FEBB0B;
+	border-radius: 3px;
+	font-size: 14px;
+	font-weight: bold;
+	padding: 3px 7px;
+	position: absolute;
+	top: 30px;
+	left: 30px;
+}
+
+.card-container .round {
+	border: 1px solid #03BFCB;
+	border-radius: 50%;
+	padding: 7px;
+}
+
+#bman .buttons {
+  padding-bottom: 15px;
+}
+
+#bman button.primary {
+	background-color: #03BFCB;
+	border: 1px solid #03BFCB;
+	border-radius: 3px;
+	color: #231E39;
+	font-family: Montserrat, sans-serif;
+	font-weight: 500;
+	padding: 10px 25px;
+}
+
+#bman button.primary.ghost {
+	background-color: transparent;
+	color: #02899C;
+}
     </style>
   </head>
   <body>
@@ -234,8 +317,31 @@ flags:
 			</ul>
 		</section>
 		<section data-background-image="/images/background.jpg">
-			<blockquote>Warning: The demos here will all be LaunchDarkly (for obvious reasons) but the principles generally apply across systems.</blockquote>
+			<blockquote>The demos here will all be LaunchDarkly (for obvious reasons) and using JavaScript but the principles generally apply across different flag systems and languages.</blockquote>
 		</section>
+    <section data-background-image="/images/background4.jpg">
+      <h3>Unofficial LaunchDarkly CFML SDK</h3>
+      <p>Maintained by the ColdBox team:</p>
+      <p><a href="https://github.com/coldbox-modules/LaunchDarklySDK">https://github.com/coldbox-modules/LaunchDarklySDK</a></p>
+    </section> 
+    <section>
+      <h3>Getting Flag Values in LaunchDarkly</h3>
+      <p>Initialize the SDK client:</p>
+      <pre><code data-trim data-noescape>const client = LDClient.initialize("CLIENT_ID", user);</code></pre>
+    </section>
+    <section>
+      <h3>Getting Flag Values in LaunchDarkly</h3>
+      <p>Wait for the client to be ready:</p>
+      <pre><code data-trim data-noescape>client.on("ready", function () {
+  ...
+});
+      </code></pre>
+    </section>
+    <section>
+      <h3>Getting Flag Values in LaunchDarkly</h3>
+      <p>Get the flag value:</p>
+      <pre><code data-trim data-noescape>const myFlag = client.variation("my-flag", false);</code></pre>
+    </section>
 		<section>
 			<h3>Advanced Feature Flags 201: Beyond the Boolean</h3>
 			<p>Other types of <em>multivariate</em> feature flags:</p>
@@ -253,10 +359,23 @@ flags:
 		<section>
 			<h3>JSON flags</h3>
 			<p>Good for complex configurations or content.</p>
-			<img src="" id="batmanImage" width="250" height=""250" style="float:left;margin-right:30px;padding-left:180px;">
-			<div style="text-align: left; font-size:.6em;margin:40px;">
-				<p>Name: <span id="batmanName"></span><br>Occupation: <span id="batmanOccupation"></span></p>
-			</div>
+      <div class="bman-container">
+			<div id="bman" class="card-container">
+        <span class="pro" id="bmanAccount"></span>
+        <img id="bmanImage" class="round" alt="user" width="200" height="200" />
+        <h3 id="bmanName"></h3>
+        <h6 id="bmanLocation"></h6>
+        <p id="bmanOccupation"></p>
+        <div class="buttons">
+          <button class="primary">
+            Message
+          </button>
+          <button class="primary ghost">
+            Following
+          </button>
+        </div>
+        </div>
+      </div>
 		</section>
 		<section data-background-image="/images/background.jpg">
 			<blockquote>Just on/off is cool, but what if it didn't have to be on or off for everyone?</blockquote>
@@ -268,13 +387,22 @@ flags:
 			<h3>Canary releases /<br>progressive rollouts</h3>
 			<h4>Deep Thoughts by Jack Handy</h4>
 			<p id="deepThoughts15">Quote here</p>
-			<button onclick="changeUser()">Change User</button>
+			<p id="rollouts-userid" style="font-size:small;"></p><button onclick="changeUser(null, 'rollouts-userid')">Change User</button>
 		</section>
+    <section>
+      <h3>Canary releases /<br>progressive rollouts</h3>
+      <p>What's going on under the hood:</p>
+      <pre><code data-trim data-noescape>async function changeUser(id) {
+  const newUser = id || self.crypto.randomUUID();
+  await client.identify({ key: newUser })
+}</code></pre>
+    </section>
 		<section>
 			<h3>User/Segment Targeting</h3>
 			<h4>Deep Thoughts by Jack Handy</h4>
 			<p id="deepThoughts16">Quote here</p>
-			<input id="slide16username" type="text" name="slide16username"><button onclick="changeUser(document.getElementById('slide16username').value)">Log in</button>
+      <p id="segments-userid" style="font-size:small;"></p>
+			<input id="slide16username" type="text" name="slide16username"><button onclick="changeUser(document.getElementById('slide16username').value,'segments-userid')">Log in</button>
 		</section>
 		<section data-background-image="/images/background.jpg">
 			<h3>Experimentation</h3>
@@ -386,10 +514,13 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
 }</code></pre>`;
       }
 
-      async function changeUser(id) {
+      async function changeUser(id, el) {
         const newUser = id || self.crypto.randomUUID();
         await client.identify({ key: newUser })
-        console.log("New user: " + newUser)
+
+        if (el) {
+          document.getElementById(el).innerText = "User: " + newUser;
+        }
       }
 
 	    function changeJackHandyQuote(quote, id) {
@@ -404,11 +535,15 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
 
       function changeData(data) {
         if (data.image && data.occupation && data.name) {
-          const elName = document.getElementById("batmanName");
-          const elOccupation = document.getElementById("batmanOccupation");
-          changeImage(data.image, "batmanImage")
+          const elName = document.getElementById("bmanName");
+          const elOccupation = document.getElementById("bmanOccupation");
+          const elLocation = document.getElementById("bmanLocation");
+          const elAccount = document.getElementById("bmanAccount");
+          changeImage(data.image, "bmanImage")
           elName.innerText = data.name;
-          elOccupation.innerText = data.occupation
+          elOccupation.innerText = data.occupation;
+          elLocation.innerText = data.location;
+          elAccount.innerText = data.account;
         }
       }
 
@@ -453,36 +588,36 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
         });
 
         // STRING FLAG IMAGE CHANGE
-        const slide14image = client.variation("slide14-image", "");
-        changeImage(slide14image, "memeImage");
-        client.on("change:slide14-image", function (flagValue) {
+        const imageString = client.variation("image-string-flag", "");
+        changeImage(imageString, "memeImage");
+        client.on("change:image-string-flag", function (flagValue) {
           changeImage(flagValue, "memeImage");
         });
 
         // JSON FLAG DATA CHANGE
-        const slide15json = client.variation("slide15-json", "{}");
-        changeData(slide15json);
-        client.on("change:slide15-json", function (flagValue) {
+        const jsonString = client.variation("structured-content-json-flag", "{}");
+        changeData(jsonString);
+        client.on("change:structured-content-json-flag", function (flagValue) {
           changeData(flagValue);
         });
 
-        // DEEP THOUGHTS SLIDE 15 QUOTE CHANGE
-        const slide15quote = client.variation("slide15-quote", "Jack handy quote");
-        changeJackHandyQuote(slide15quote, "deepThoughts15");
-        client.on("change:slide15-quote", function (flagValue) {
+        // DEEP THOUGHTS QUOTE CHANGE PROGRESSIVE ROLLOUT
+        const rolloutString = client.variation("string-progressive-rollout", "Jack handy quote");
+        changeJackHandyQuote(rolloutString, "deepThoughts15");
+        client.on("change:string-progressive-rollout", function (flagValue) {
           changeJackHandyQuote(flagValue, "deepThoughts15");
         });
 
-        // DEEP THOUGHTS SLIDE 16 QUOTE CHANGE
-        const slide16quote = client.variation("slide16-quote", "Jack handy quote");
-        changeJackHandyQuote(slide16quote, "deepThoughts16");
-        client.on("change:slide16-quote", function (flagValue) {
+        // DEEP THOUGHTS QUOTE CHANGE USER TARGETING
+        const targtingString = client.variation("string-user-segments", "Jack handy quote");
+        changeJackHandyQuote(targtingString, "deepThoughts16");
+        client.on("change:string-user-segments", function (flagValue) {
           changeJackHandyQuote(flagValue, "deepThoughts16");
         });
 
         // EXPERIMENTATION BUTTON CHANGE
-        const slide21button = client.variation("slide21-experiment", "Do thing");
-        changeButtonText(slide21button, "CTAButton");
+        const experimentString = client.variation("slide21-experiment", "Do thing");
+        changeButtonText(experimentString, "CTAButton");
         client.on("change:slide21-experiment", function (flagValue) {
           changeButtonText(flagValue, "CTAButton");
         });
