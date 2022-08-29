@@ -407,9 +407,9 @@ flags:
 		<section data-background-image="/images/background.jpg">
 			<h3>Experimentation</h3>
 			<div class="button-wrapper">
-				<a id="CTAButton" class="button cta-button" href="http://localhost:8000/#/21" onclick="console.log('Flushing');client.flush();">Do thing!</a>
+				<a id="CTAButton" class="button cta-button" href="http://localhost:8000/#/26" onclick="console.log('Flushing');client.flush();">Do thing!</a>
 			</div>
-			<button onclick="changeUser()">Change User</button>
+			<p id="experiments-userid" style="font-size:small;"></p><button onclick="changeUser(null,'experiments-userid')">Change User</button>
 		</section>
     <section>
       <h3>Aside:</h3><h2>Beware flag debt!</h2>
