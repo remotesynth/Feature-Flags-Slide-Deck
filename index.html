@@ -211,7 +211,7 @@
         </section>
         <section>
           <h3>Basic Toggle</h3>
-          <div id="slide5codeToggle">
+          <div id="codeToggle">
             <pre><code data-trim data-noescape>
 			if (myFlag) {
 				// run this code and show my awesome feature
@@ -504,7 +504,7 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
       }
 
       function slide5toggleCode() {
-        const el = document.getElementById("slide5codeToggle");
+        const el = document.getElementById("codeToggle");
         if (document.getElementById("switch").checked)
           el.innerHTML = "<p>My Awesome In-development Feature!!</p>";
         else
@@ -557,8 +557,6 @@ rewriter.on("h1", new H1ElementHandler());</code></pre>
       };
       const client = LDClient.initialize("62d707f7ec8ffa10f6e7dafc", user);
       client.on("ready", function () {
-        // SLIDE 1
-
         // TITLE CHANGE
         const slide1Title = client.variation("slide1-title", "🤷");
         setStringFlagToInnerHTML("slide1-title", slide1Title);
